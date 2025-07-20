@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Professional Calculator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      background: linear-gradient(115deg, #0f2027, #203a43, #2c5364);
+      position: relative;
+    }
+
+    /* Background animation - particles */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: url('https://www.transparenttextures.com/patterns/stardust.png');
+      opacity: 0.08;
+      animation: floatParticles 40s linear infinite;
+    }
+
+    @keyframes floatParticles {
+      0% {background-position: 0 0;}
+      100% {background-position: 1000px 1000px;}
+    }
+
+    .calculator {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      width: 350px;
+      position: relative;
+      z-index: 1;
+      color: white;
+    }
+
+    .display {
+      width: 100%;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-size: 1.8rem;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: right;
+      overflow-x: auto;
+      box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .buttons button {
+      position: relative;
+      padding: 15px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      cursor: pointer;
+      overflow: hidden;
+      transition: background 0.3s ease, transform 0.2s;
+    }
+
+    .buttons button::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(0);
+      transition: 0.5s ease;
+      z-index: 0;
+    }
+
+    .buttons button:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(1.05);
+      box-shadow: 0 0 8px #fff3;
+    }
+
+    .buttons button:active::after {
+      width: 200%;
+      height: 200%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .operator {
+      background: rgba(0, 123, 255, 0.6);
+    }
+
+    .operator:hover {
+      background: rgba(0, 123, 255, 0.8);
+    }
+
+    .equal {
+      background: rgba(40, 167, 69, 0.7);
+    }
+
+    .equal:hover {
+      background: rgba(40, 167, 69, 0.9);
+    }
+
+    .wide {
+      grid-column: span 2;
+    }
+
+    .theme-toggle {
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    .theme-toggle button {
+      padding: 8px 16px;
+      background: #17a2b8;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .theme-toggle button:hover {
+      background: #138496;
+    }
+
+    .history {
+      margin-top: 20px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 10px;
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 0.85rem;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+      color: #ccc;
+    }
+
+    .history-entry {
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="display" id="display">0</div>
+    <div class="buttons">
+      <button onclick="clearDisplay()">C</button>
+      <button onclick="deleteLast()">⌫</button>
+      <button onclick="append('%')">%</button>
+      <button class="operator" onclick="append('/')">÷</button>
+
+      <button onclick="append('7')">7</button>
+      <button onclick="append('8')">8</button>
+      <button onclick="append('9')">9</button>
+      <button class="operator" onclick="append('*')">×</button>
+
+      <button onclick="append('4')">4</button>
+      <button onclick="append('5')">5</button>
+      <button onclick="append('6')">6</button>
+      <button class="operator" onclick="append('-')">−</button>
+
+      <button onclick="append('1')">1</button>
+      <button onclick="append('2')">2</button>
+      <button onclick="append('3')">3</button>
+      <button class="operator" onclick="append('+')">+</button>
+
+      <button onclick="append('0')">0</button>
+      <button onclick="append('.')">.</button>
+      <button class="wide equal" onclick="calculate()">=</button>
+    </div>
+    <div class="theme-toggle">
+      <button onclick="toggleSound()">🔈 Toggle Sound</button>
+    </div>
+    <div class="history" id="history"></div>
+  </div>
+
+  <audio id="clickSound" src="click.mp3" preload="auto"></audio>
+
+  <script>
+    const display = document.getElementById("display");
+    const sound = document.getElementById("clickSound");
+    const historyEl = document.getElementById("history");
+    let currentInput = "";
+    let soundOn = true;
+
+    function playSound() {
+      if (soundOn) {
+        sound.currentTime = 0;
+        sound.play();
+      }
+    }
+
+    function append(char) {
+      playSound();
+      if (currentInput === "0" && char !== '.') currentInput = "";
+      currentInput += char;
+      updateDisplay();
+    }
+
+    function clearDisplay() {
+      playSound();
+      currentInput = "";
+      updateDisplay();
+    }
+
+    function deleteLast() {
+      playSound();
+      currentInput = currentInput.slice(0, -1);
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      display.innerText = currentInput === "" ? "0" : currentInput;
+    }
+
+    function calculate() {
+      playSound();
+      try {
+        const result = eval(currentInput.replace(/[^-()\d/*+.%]/g, ''));
+        addToHistory(currentInput + ' = ' + result);
+        currentInput = result.toString();
+        updateDisplay();
+      } catch {
+        display.innerText = "Error";
+        currentInput = "";
+      }
+    }
+
+    function addToHistory(entry) {
+      const div = document.createElement('div');
+      div.className = 'history-entry';
+      div.textContent = entry;
+      historyEl.prepend(div);
+    }
+
+    document.addEventListener("keydown", function (event) {
+      const key = event.key;
+      if (!isNaN(key) || "+-*/.%".includes(key)) {
+        append(key);
+      } else if (key === "Enter") {
+        calculate();
+      } else if (key === "Backspace") {
+        deleteLast();
+      } else if (key === "Escape") {
+        clearDisplay();
+      }
+    });
+
+    function toggleSound() {
+      soundOn = !soundOn;
+      alert("Sound " + (soundOn ? "ON 🔊" : "OFF 🔇"));
+    }
+  </script>
+</body>
+</html>
