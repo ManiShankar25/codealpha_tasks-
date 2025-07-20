@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Category Image Gallery</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <h1>Dynamic Image Gallery</h1>
+
+  <div class="filter-buttons">
+    <button onclick="filterImages('all')">All</button>
+    <button onclick="filterImages('cars')">Cars 🚗</button>
+    <button onclick="filterImages('bikes')">Bikes 🏍️</button>
+    <button onclick="filterImages('house')">House 🏠</button>
+    <button onclick="filterImages('animes')">Animes 🎌</button>
+    <button onclick="filterImages('nature')">Nature 🌄</button>
+    <button onclick="filterImages('city')">City 🌆</button>
+    <button onclick="filterImages('animals')">Animals 🐾</button>
+    <button onclick="filterImages('gaming')">Gaming 🎮</button>
+  </div>
+
+  <div class="gallery" id="gallery">
+    <!-- Cars -->
+    <div class="gallery-item" data-category="cars"><img src="images/ford gt.jpg" alt="Car"></div>
+    <div class="gallery-item" data-category="cars"><img src="images\bmw-m5-smoke-1920x1080-wallpapers.webp" alt="Car"></div>
+    <div class="gallery-item" data-category="cars"><img src="images/Aston Martin.jpg" alt="Car"></div>
+
+    <!-- Bikes -->
+    <div class="gallery-item" data-category="bikes"><img src="images/-z900-wallpapers.jpg" alt="Bike"></div>
+    <div class="gallery-item" data-category="bikes"><img src="images/continental-gt-120-years-special-edition-wallpapers.jpg" alt="Bike"></div>
+    <div class="gallery-item" data-category="bikes"><img src="images/s-1000-rr-2022-wallpapers.jpg" alt="Bike"></div>
+
+    <!-- House -->
+    <div class="gallery-item" data-category="house"><img src="images/house.png" alt="House"></div>
+    <div class="gallery-item" data-category="house"><img src="images/house 2.jpeg" alt="House"></div>
+     <div class="gallery-item" data-category="house"><img src="images/house 3.png" alt="House"></div>
+
+    <!-- Animes -->
+    <div class="gallery-item" data-category="animes"><img src="images/gojo.webp" alt="Anime"></div>
+    <div class="gallery-item" data-category="animes"><img src="images/isagi.jpeg" alt="Anime"></div>
+    <div class="gallery-item" data-category="animes"><img src="images/solo leveling.jpg" alt="Anime"></div>
+
+    <!-- Nature -->
+    <div class="gallery-item" data-category="nature"><img src="images/N1.jpeg" alt="Nature"></div>
+    <div class="gallery-item" data-category="nature"><img src="images/N2.jpeg" alt="Nature"></div>
+    <div class="gallery-item" data-category="nature"><img src="images/N3.jpeg" alt="Nature"></div>
+
+    <!-- City -->
+    <div class="gallery-item" data-category="city"><img src="images/C1.jpeg" alt="City"></div>
+    <div class="gallery-item" data-category="city"><img src="images/C2.jpeg" alt="City"></div>
+    <div class="gallery-item" data-category="city"><img src="images/C3.jpeg" alt="City"></div>
+
+    <!-- Animals -->
+    <div class="gallery-item" data-category="animals"><img src="images/A1.jpg" alt="Dog"></div>
+    <div class="gallery-item" data-category="animals"><img src="images/A2.jpg" alt="Animal"></div>
+    <div class="gallery-item" data-category="animals"><img src="images/A3.jpg" alt="Animal"></div>
+
+    <!-- Gaming -->
+    <div class="gallery-item" data-category="gaming"><img src="images/G1.jpg" alt="Gaming"></div>
+    <div class="gallery-item" data-category="gaming"><img src="images/G2.jpeg" alt="Gaming"></div>
+    <div class="gallery-item" data-category="gaming"><img src="images/G3.jpg" alt="Gaming"></div>
+  </div>
+
+  <div class="lightbox" id="lightbox">
+    <img src="" alt="Large view" id="lightbox-img">
+    <div class="lightbox-controls">
+      <button onclick="prevImage()">⟵ Prev</button>
+      <button onclick="nextImage()">Next ⟶</button>
+      <button onclick="closeLightbox()">✖ Close</button>
+    </div>
+  </div>
+
+  <script>
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    let currentIndex = 0;
+
+    galleryItems.forEach((item, index) => {
+      item.addEventListener('click', () => {
+        currentIndex = index;
+        showImage(index);
+      });
+    });
+
+    function showImage(index) {
+      lightbox.style.display = 'flex';
+      const img = galleryItems[index].querySelector('img');
+      lightboxImg.src = img.src;
+    }
+
+    function closeLightbox() {
+      lightbox.style.display = 'none';
+    }
+
+    function nextImage() {
+      currentIndex = (currentIndex + 1) % galleryItems.length;
+      showImage(currentIndex);
+    }
+
+    function prevImage() {
+      currentIndex = (currentIndex - 1 + galleryItems.length) % galleryItems.length;
+      showImage(currentIndex);
+    }
+
+    function filterImages(category) {
+      galleryItems.forEach(item => {
+        const itemCategory = item.getAttribute('data-category');
+        item.style.display = (category === 'all' || itemCategory === category) ? 'block' : 'none';
+      });
+    }
+  </script>
+
+</body>
+</html>
